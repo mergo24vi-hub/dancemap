@@ -62,3 +62,40 @@ function renderPointsOnMap(points, map) {
 
     if (bounds.length) map.fitBounds(bounds, { padding: [30, 30] });
 }
+
+function renderPartiesOnMap(points, map) {
+    // Додавання маркерів + тултіпів + попапів + трекінг кліку
+    const bounds = [];
+    for (const item of points) {
+        if (typeof item.lat !== 'number' || typeof item.lng !== 'number') continue;
+
+        const marker = L.marker([item.lat, item.lng]).addTo(map);
+
+        marker.bindTooltip(item["заголовок"], {
+            permanent: true,
+            direction: "top",
+            offset: [0, -18],
+            className: "my-tooltip"
+        }).openTooltip();
+
+        const html = `
+        <div class="popup">
+          <div><strong>${item["заголовок"]}</strong></div>
+          <div class="muted">${item["адреса"]}</div>
+          <div>Контакт: ${item["опис"]}</div>
+        </div>`;
+        marker.bindPopup(html);
+
+        // 🔹 ТРЕКІНГ: фіксуємо клік по маркеру в Simple Analytics
+        marker.on('click', () => {
+            sa_event('marker_click', {
+                studio: item["id"],
+                address: item["адреса"]
+            });
+        });
+
+        bounds.push([item.lat, item.lng]);
+    }
+
+    if (bounds.length) map.fitBounds(bounds, { padding: [30, 30] });
+}

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Карта танцювальних студій | танцювальний дайджест</title>
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossorigin=""
+    />
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- Simple Analytics: базовий скрипт (авто-трекінг переглядів сторінок) -->
+    <script async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+    <!-- Фолбек-черга на випадок, якщо скрипт ще не завантажився на момент виклику події -->
+    <script>
+        window.sa_event = window.sa_event || function() {
+            (window.sa_event.q = window.sa_event.q || []).push(arguments);
+        };
+        // Якщо хочеш власну подію відкриття сторінки, розкоментуй:
+        // document.addEventListener('DOMContentLoaded', () => {
+        //   sa_event('site_open', { page: location.pathname });
+        // });
+    </script>
+</head>
+<body>
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+></script>
+
+<script src="main.js"></script>
+
+<script>
+    // Плитки MapTiler (можеш залишити як є)
+    const MAPTILER_KEY = "tJoJlJ4VvyIVk26MvPbb";
+    const TILE_URL = `https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${MAPTILER_KEY}`;
+
+    // Ініціалізація карти
+    const map = L.map('map').setView([50.450001, 30.523333], 12);
+    L.tileLayer(TILE_URL, {
+        attribution: 'Карта вечірок від &copy; <a href="https://t.me/openairskyiv">танцювальний дайджест, 2025</a>',
+        tileSize: 256,
+        maxZoom: 19
+    }).addTo(map);
+
+    (async () => {
+        const parties = await loadDanceData('parties.json');
+        renderPartiesOnMap(parties, map);
+    })();
+
+</script>
+
+</body>
+</html>
