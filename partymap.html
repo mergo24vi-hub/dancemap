@@ -56,6 +56,8 @@
     } else {
         document.getElementById('map').style.height = '100vh';
     }
+    const userId = tg.initDataUnsafe?.user?.id;
+    console.log('Telegram userId:', userId ?? 'немає (без авторизації/поза Telegram)');
 
     // Плитки MapTiler (можеш залишити як є)
     const MAPTILER_KEY = "tJoJlJ4VvyIVk26MvPbb";
