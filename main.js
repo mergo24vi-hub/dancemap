@@ -89,7 +89,7 @@ function renderPartiesOnMap(points, map) {
         // 🔹 ТРЕКІНГ: фіксуємо клік по маркеру в Simple Analytics
         marker.on('click', () => {
             sa_event('marker_click', {
-                studio: item["id"],
+                id: item["id"],
                 address: item["адреса"]
             });
         });
