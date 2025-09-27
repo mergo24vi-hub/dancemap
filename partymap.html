@@ -12,6 +12,13 @@
     />
     <link rel="stylesheet" href="styles.css" />
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!--    styles for telegram-->
+    <style>
+        html, body { height: 100%; margin:0; }
+        #map { height: 100%; }
+    </style>
+
     <!-- Simple Analytics: базовий скрипт (авто-трекінг переглядів сторінок) -->
     <script async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
     <!-- Фолбек-черга на випадок, якщо скрипт ще не завантажився на момент виклику події -->
@@ -38,14 +45,31 @@
 <script src="main.js"></script>
 
 <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+        tg.ready();
+        tg.expand();
+        const setH = () => document.getElementById('map').style.height = tg.viewportHeight + 'px';
+        setH();
+        tg.onEvent('viewportChanged', setH);
+        window.sa_event?.('tg_app_open', { app: 'dance_map' });
+    } else {
+        document.getElementById('map').style.height = '100vh';
+    }
+
     // Плитки MapTiler (можеш залишити як є)
     const MAPTILER_KEY = "tJoJlJ4VvyIVk26MvPbb";
     const TILE_URL = `https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${MAPTILER_KEY}`;
 
+    function openLink(url) {
+        if (tg) tg.openLink(url);
+        else window.open(url, '_blank');
+    }
+
     // Ініціалізація карти
     const map = L.map('map').setView([50.450001, 30.523333], 12);
     L.tileLayer(TILE_URL, {
-        attribution: 'Карта вечірок від &copy; <a href="https://t.me/openairskyiv">танцювальний дайджест, 2025</a>',
+        attribution: 'Карта від © <a href="#" onclick="openLink(\'https://t.me/openairskyiv\');return false;">танцювальний дайджест, 2025</a>',
         tileSize: 256,
         maxZoom: 19
     }).addTo(map);
