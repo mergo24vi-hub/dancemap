@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Танці Києва (Leaflet + MapTiler)</title>
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossorigin=""
+    />
+    <style>
+        html,body,#map { height: 100%; margin: 0; padding: 0; }
+        .userid-bar {
+            position: absolute; z-index: 1000; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95); padding:8px 12px;
+            font-family: Inter, system-ui, sans-serif; font-size:14px;
+            text-align: center; box-shadow:0 -2px 6px rgba(0,0,0,0.15);
+        }
+        #userid { font-weight:700; }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<div class="userid-bar">
+    Telegram user id: <span id="userid">0000</span>
+</div>
+
+<script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+></script>
+
+<script>
+    // --- Настройки карти ---
+    const KYIV_COORDS = [50.4501, 30.5234];
+    const MAPTILER_KEY = 'tJoJlJ4VvyIVk26MvPbb';
+    const TILE_URL = `https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${MAPTILER_KEY}`;
+    const map = L.map('map').setView(KYIV_COORDS, 12);
+
+    L.tileLayer(TILE_URL, {
+        attribution: 'Карта танцювальних студій від проекту &copy; <a href="https://t.me/openairskyiv">танцювальний дайджест, 2025</a>',
+        tileSize: 256,
+        maxZoom: 19
+    }).addTo(map);
+
+
+    L.marker(KYIV_COORDS).addTo(map).bindPopup('Київ — центр карти').openPopup();
+
+    // --- Telegram WebApp interaction ---
+    function getTelegramUserId() {
+        try {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const unsafe = window.Telegram.WebApp.initDataUnsafe;
+                if (unsafe && unsafe.user && unsafe.user.id) return unsafe.user.id;
+                if (window.Telegram.WebApp.initData && window.Telegram.WebApp.initData.user && window.Telegram.WebApp.initData.user.id)
+                    return window.Telegram.WebApp.initData.user.id;
+            }
+        } catch (e) {
+            console.warn('Telegram WebApp read error', e);
+        }
+        return null;
+    }
+
+    window.addEventListener('load', () => {
+        const id = getTelegramUserId();
+        document.getElementById('userid').textContent = id ? id : '0000';
+    });
+</script>
+</body>
+</html>
