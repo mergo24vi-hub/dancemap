@@ -51,17 +51,12 @@
 
     // --- Telegram WebApp interaction ---
     function getTelegramUserId() {
-        try {
-            if (window.Telegram && window.Telegram.WebApp) {
-                const unsafe = window.Telegram.WebApp.initDataUnsafe;
-                if (unsafe && unsafe.user && unsafe.user.id) return unsafe.user.id;
-                if (window.Telegram.WebApp.initData && window.Telegram.WebApp.initData.user && window.Telegram.WebApp.initData.user.id)
-                    return window.Telegram.WebApp.initData.user.id;
-            }
-        } catch (e) {
-            console.warn('Telegram WebApp read error', e);
-        }
-        return null;
+        const tg = window.Telegram?.WebApp;
+        if (!tg) return null;
+        tg.ready();
+        const userId = tg.initDataUnsafe?.user?.id;
+        console.log('Telegram userId:', userId ?? 'немає (без авторизації/поза Telegram)');
+        return userId;
     }
 
     window.addEventListener('load', () => {
