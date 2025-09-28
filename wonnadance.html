@@ -52,6 +52,7 @@
     // --- Telegram WebApp interaction ---
     function getTelegramUserId() {
         const tg = window.Telegram?.WebApp;
+        console.log('in getTelegramUserId, '+tg)
         if (!tg) return null;
         tg.ready();
         const userId = tg.initDataUnsafe?.user?.id;
