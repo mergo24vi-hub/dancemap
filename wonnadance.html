@@ -23,6 +23,11 @@
 </head>
 <body>
 <div id="map"></div>
+<div id="comment-box" style="display:none; position:absolute; top:10px; left:50%; transform:translateX(-50%);
+background:white; padding:8px; border:1px solid #ccc; z-index:2000;">
+    <input type="text" id="rect-comment" placeholder="Введіть коментар" />
+    <button id="save-comment">Зберегти</button>
+</div>
 <div class="userid-bar">
     Telegram user id: <span id="userid">0000</span>
 </div>
@@ -32,6 +37,8 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""
 ></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" integrity="" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js" integrity="sha512-ozq8xQKq6urvuU6jNgkfqAmT7jKN2XumbrX1JiB3TnF7tI48DPI4Gy1GXKD/V3EExgAs1V+pRO7vwtS1LHg0Gw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
@@ -46,7 +53,60 @@
         tileSize: 256,
         maxZoom: 19
     }).addTo(map);
+    const drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
 
+    const drawControl = new L.Control.Draw({
+        draw: {
+            polygon: false,
+            polyline: false,
+            circle: false,
+            marker: false,
+            circlemarker: false,
+            rectangle: {
+                shapeOptions: { color: '#3388ff', weight: 2 }
+            }
+        },
+        edit: {
+            featureGroup: drawnItems
+        }
+    });
+    map.addControl(drawControl);
+
+    map.on(L.Draw.Event.CREATED, function (event) {
+        const layer = event.layer;
+
+        // Видаляємо попередній прямокутник (якщо він є)
+        drawnItems.clearLayers();
+
+        // Додаємо новий
+        drawnItems.addLayer(layer);
+
+        // Отримуємо координати прямокутника
+        if (layer instanceof L.Rectangle) {
+            const bounds = layer.getBounds();
+            console.log('Прямокутник координати:', bounds.toBBoxString());
+            // формат: "west,south,east,north"
+
+            const commentBox = document.getElementById('comment-box');
+            commentBox.style.display = 'block';
+
+            document.getElementById('save-comment').onclick = function() {
+                const comment = document.getElementById('rect-comment').value;
+                if (comment) {
+                    //layer.bindPopup(comment).openPopup();
+                    layer.bindTooltip(comment, {
+                        permanent: true,        // завжди показаний
+                        direction: 'bottom',    // під прямокутником
+                        className: 'rect-comment-tooltip'
+                    }).openTooltip();
+                    console.log('Коментар:', comment);
+                }
+                commentBox.style.display = 'none';
+                document.getElementById('rect-comment').value = '';
+            };
+        }
+    });
 
     L.marker(KYIV_COORDS).addTo(map).bindPopup('Київ — центр карти').openPopup();
 
