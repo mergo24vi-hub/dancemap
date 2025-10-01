@@ -7,6 +7,6 @@ exports.handler = async (event, context) => {
     const value = raw !== null ? JSON.parse(raw) : null;
     return {
         statusCode: 200,
-        body: JSON.stringify({message: 'Hello from server! ' + v})
+        body: JSON.stringify({message: 'Hello from server! ' + value})
     };
 };
