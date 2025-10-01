@@ -53,9 +53,9 @@ background:white; padding:8px; border:1px solid #ccc; z-index:2000;">
         tileSize: 256,
         maxZoom: 19
     }).addTo(map);
+
     const drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
-
     const drawControl = new L.Control.Draw({
         draw: {
             polygon: false,
