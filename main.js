@@ -104,22 +104,15 @@ function renderPartiesOnMap(userid, points, map) {
     const voices = getVoices()
     for (const item of points) {
         if (typeof item.lat !== 'number' || typeof item.lng !== 'number') continue;
+        const marker = L.marker([item.lat, item.lng]).addTo(map);
 
-        const votes = 0+ voices[item.id]
+        const votes = + voices[item.id]
         let html = `
           <div class="party-marker" data-partyid="${escapeHtml(item.id)}">
             <div class="pin" title="${escapeHtml(item['заголовок'] || '')}">•</div>
             <div class="votes-circle" aria-label="Голосів: ${votes}">${votes}</div>
             ${canUserVote ? `<button class="vote-btn" title="Проголосувати">👍</button>` : ''}
           </div>`;
-
-        let marker = L.marker([item.lat, item.lng]).addTo(map);
-        marker.bindTooltip(item["заголовок"], {
-            permanent: true,
-            direction: "top",
-            offset: [0, -18],
-            className: "my-tooltip"
-        }).openTooltip();
 
         const icon = L.divIcon({
             className: '', // пусто, щоб уникнути стандартних стилів leaflet
@@ -128,29 +121,99 @@ function renderPartiesOnMap(userid, points, map) {
             iconAnchor: [14, 28] // можна підкоригувати під ваш маркер
         });
 
-        marker = L.marker([item.lat, item.lng], { icon }).addTo(map);
+        L.marker([item.lat, item.lng], { icon }).addTo(map);
 
-        html = `
+        // Тултіп і попап як раніше (опціонально)
+        marker.bindTooltip(item["заголовок"], {
+            permanent: true,
+            direction: "top",
+            offset: [0, -12],
+            className: "my-tooltip"
+        }).openTooltip();
+
+        const popupHtml = `
         <div class="popup">
           <div><strong>${item["заголовок"]}</strong></div>
           <div class="muted">${item["адреса"]}</div>
-          <div>Контакт: ${item["опис"]}</div>
+          <div>опис: ${item["опис"]}</div>
         </div>`;
+        marker.bindPopup(popupHtml);
 
-        if (canUserVote) {
-            html += `
-      <button class="vote-btn" title="мені подобається ця вечірка">👍️</button>`;
-        }
+        marker.on('add', () => {
+            const el = marker.getElement();
+            if (!el) return;
 
-        marker.bindPopup(html);
+            // Пошук елементів
+            const votesEl = el.querySelector('.votes-circle');
+            const btn = el.querySelector('.vote-btn');
 
-        // 🔹 ТРЕКІНГ: фіксуємо клік по маркеру в Simple Analytics
-        marker.on('click', () => {
-            sa_event('marker_click', {
-                id: item["id"],
-                address: item["адреса"]
+            // Одноразовий трекінг кліку по маркеру (аналітика)
+            el.addEventListener('click', () => {
+                sa_event && sa_event('marker_click', { id: item.id, address: item["адреса"] });
+                // або console.log('marker clicked', item.id)
+            }, { passive: true });
+
+            if (!btn) return;
+
+            // Слухач кнопки — додаємо лише один раз
+            const onBtnClick = async (e) => {
+                console.log('attempt to vote')
+                e.stopPropagation();
+                if (btn.classList.contains('voted')) return;
+
+
+
+                try {
+                    btn.disabled = true;
+                    const prevText = btn.textContent;
+                    btn.textContent = '…';
+
+                    // Тут викликаємо бекенд (заміни URL на свій)
+                    // const res = await fetch('/.netlify/functions/vote', { ... });
+                    // if (!res.ok) throw new Error('Network response not ok');
+                    // const result = await res.json();
+                    // const newCount = (result && typeof result.votes === 'number') ? result.votes : (Number(votesEl?.textContent || 0) + 1);
+
+                    // Тимчасово: симуляція результату
+                    const newCount = Number(votesEl?.textContent || 0) + 1;
+
+                    // Оновлення UI
+                    if (votesEl) votesEl.textContent = String(newCount);
+                    btn.classList.add('voted');
+                    btn.textContent = '✓';
+                    btn.disabled = true;
+
+                    // анімація, тільки якщо є елемент
+                    if (votesEl && typeof votesEl.animate === 'function') {
+                        votesEl.animate([
+                            { transform: 'scale(1)' },
+                            { transform: 'scale(1.12)' },
+                            { transform: 'scale(1)' }
+                        ], { duration: 260, easing: 'ease-out' });
+                    }
+
+                    sa_event && sa_event('vote', { partyid: item.id, userid });
+
+                } catch (err) {
+                    console.error('Vote error', err);
+                    btn.disabled = false;
+                    btn.textContent = '👍';
+                    alert('Помилка при голосуванні. Спробуйте ще раз.');
+                }
+            };
+
+            btn.addEventListener('click', onBtnClick);
+
+            // Якщо потрібно — очистка слухачів при видаленні маркеру
+            marker.on('remove', () => {
+                try {
+                    btn.removeEventListener('click', onBtnClick);
+                } catch (ignore) {}
             });
         });
+
+
+
 
         bounds.push([item.lat, item.lng]);
     }

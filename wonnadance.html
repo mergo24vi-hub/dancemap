@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="uk">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <title>Танці Києва (Leaflet + MapTiler)</title>
     <link
             rel="stylesheet"
@@ -11,21 +11,36 @@
             crossorigin=""
     />
     <style>
-        html,body,#map { height: 100%; margin: 0; padding: 0; }
-        .userid-bar {
-            position: absolute; z-index: 1000; left: 0; right: 0; bottom: 0;
-            background: rgba(255,255,255,0.95); padding:8px 12px;
-            font-family: Inter, system-ui, sans-serif; font-size:14px;
-            text-align: center; box-shadow:0 -2px 6px rgba(0,0,0,0.15);
+        html, body, #map {
+            height: 100%;
+            margin: 0;
+            padding: 0;
         }
-        #userid { font-weight:700; }
+
+        .userid-bar {
+            position: absolute;
+            z-index: 1000;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 12px;
+            font-family: Inter, system-ui, sans-serif;
+            font-size: 14px;
+            text-align: center;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        #userid {
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
 <div id="map"></div>
 <div id="comment-box" style="display:none; position:absolute; top:10px; left:50%; transform:translateX(-50%);
 background:white; padding:8px; border:1px solid #ccc; z-index:2000;">
-    <input type="text" id="rect-comment" placeholder="Введіть коментар" />
+    <input type="text" id="rect-comment" placeholder="Введіть коментар"/>
     <button id="save-comment">Зберегти</button>
 </div>
 <div class="userid-bar">
@@ -37,16 +52,16 @@ background:white; padding:8px; border:1px solid #ccc; z-index:2000;">
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""
 ></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" integrity="" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js" integrity="sha512-ozq8xQKq6urvuU6jNgkfqAmT7jKN2XumbrX1JiB3TnF7tI48DPI4Gy1GXKD/V3EExgAs1V+pRO7vwtS1LHg0Gw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" integrity=""
+      crossorigin="anonymous" referrerpolicy="no-referrer"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"
+        integrity="sha512-ozq8xQKq6urvuU6jNgkfqAmT7jKN2XumbrX1JiB3TnF7tI48DPI4Gy1GXKD/V3EExgAs1V+pRO7vwtS1LHg0Gw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="map-config.js"></script>
 
 <script>
-    // --- Настройки карти ---
-    const KYIV_COORDS = [50.4501, 30.5234];
-    const MAPTILER_KEY = 'tJoJlJ4VvyIVk26MvPbb';
-    const TILE_URL = `https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${MAPTILER_KEY}`;
-    const map = L.map('map').setView(KYIV_COORDS, 12);
+    // Map configuration is loaded from map-config.js
 
     L.tileLayer(TILE_URL, {
         attribution: 'Карта танцювальних студій від проекту &copy; <a href="https://t.me/openairskyiv">танцювальний дайджест, 2025</a>',
@@ -64,7 +79,7 @@ background:white; padding:8px; border:1px solid #ccc; z-index:2000;">
             marker: false,
             circlemarker: false,
             rectangle: {
-                shapeOptions: { color: '#3388ff', weight: 2 }
+                shapeOptions: {color: '#3388ff', weight: 2}
             }
         },
         edit: {
@@ -79,7 +94,6 @@ background:white; padding:8px; border:1px solid #ccc; z-index:2000;">
         // Видаляємо попередній прямокутник (якщо він є)
         drawnItems.clearLayers();
 
-        // Додаємо новий
         drawnItems.addLayer(layer);
 
         // Отримуємо координати прямокутника
@@ -91,7 +105,7 @@ background:white; padding:8px; border:1px solid #ccc; z-index:2000;">
             const commentBox = document.getElementById('comment-box');
             commentBox.style.display = 'block';
 
-            document.getElementById('save-comment').onclick = function() {
+            document.getElementById('save-comment').onclick = function () {
                 const comment = document.getElementById('rect-comment').value;
                 if (comment) {
                     //layer.bindPopup(comment).openPopup();
@@ -113,7 +127,7 @@ background:white; padding:8px; border:1px solid #ccc; z-index:2000;">
     // --- Telegram WebApp interaction ---
     function getTelegramUserId() {
         const tg = window.Telegram?.WebApp;
-        console.log('in getTelegramUserId, '+tg)
+        console.log('in getTelegramUserId, ' + tg)
         if (!tg) return null;
         tg.ready();
         const userId = tg.initDataUnsafe?.user?.id;
