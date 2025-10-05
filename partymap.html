@@ -56,8 +56,10 @@
     } else {
         document.getElementById('map').style.height = '100vh';
     }
-    const userId = tg.initDataUnsafe?.user?.id;
-    console.log('Telegram userId:', userId ?? 'немає (без авторизації/поза Telegram)');
+    const userid = tg.initDataUnsafe?.user?.id || 1234;
+    const canUserVote = getUserPermissons(userid);
+    const heart = canUserVote ? '❤️' : '_';
+    console.log('Telegram :', userid , heart);
 
     // Плитки MapTiler (можеш залишити як є)
     const MAPTILER_KEY = "tJoJlJ4VvyIVk26MvPbb";
@@ -71,14 +73,14 @@
     // Ініціалізація карти
     const map = L.map('map').setView([50.450001, 30.523333], 12);
     L.tileLayer(TILE_URL, {
-        attribution: userId ?? "0000" + ' Карта від © <a href="#" onclick="openLink(\'https://t.me/openairskyiv\');return false;">танцювальний дайджест, 2025</a>',
+        attribution: userid +heart + ' Карта від © <a href="#" onclick="openLink(\'https://t.me/openairskyiv\');return false;">танцювальний дайджест, 2025</a>',
         tileSize: 256,
         maxZoom: 19
     }).addTo(map);
 
     (async () => {
         const parties = await loadDanceData('parties.json');
-        renderPartiesOnMap(parties, map);
+        renderPartiesOnMap(userid, parties, map);
     })();
 
 </script>

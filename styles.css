@@ -49,3 +49,58 @@ html, body, #map {
 .leaflet-tooltip-top.my-tooltip {
     margin-top: -4px;
 }
+
+
+/* Контейнер кастомного маркера */
+.party-marker {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* відступ між маркером і кругом/кнопкою */
+    pointer-events: none; /* за замовчуванням, щоби не блокувати перетягування карти; внутрішні елементи мають override */
+}
+
+/* Власна іконка (можеш використовувати svg або фон) */
+.party-marker .pin {
+    width: 28px;
+    height: 28px;
+    background: url('/path/to/marker-icon.svg') no-repeat center/contain;
+    pointer-events: auto;
+}
+
+/* Круг з числом голосів */
+.party-marker .votes-circle {
+    min-width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #ffffffcc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    pointer-events: auto;
+    user-select: none;
+}
+
+/* Кнопка голосування (права) */
+.party-marker .vote-btn {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 6px 8px;
+    cursor: pointer;
+    font-size: 16px;
+    pointer-events: auto;
+    transition: transform .12s ease, background-color .12s ease, border-color .12s ease;
+}
+
+/* hover/active */
+.party-marker .vote-btn:hover { transform: translateY(-2px); border-color: #bbb; }
+.party-marker .vote-btn:active { transform: translateY(0); }
+
+/* стан після голосування */
+.party-marker .vote-btn.voted {
+    background-color: #dff0d8;
+    border-color: #c3e6cb;
+    cursor: default;
+}
